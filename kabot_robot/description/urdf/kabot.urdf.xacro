@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Kabot">
+  <xacro:arg name="prefix" default=""/>
+
+  <xacro:include filename="kabot.materials.xacro"/>
+  <xacro:include filename="kabot_description.urdf.xacro"/>
+
+  <xacro:kabot prefix="$(arg prefix)"/>
+</robot>

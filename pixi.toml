@@ -1,0 +1,28 @@
+[workspace]
+authors = ["Krzysztof Pochwała <krzysztof.pochwala@gmail.com>"]
+channels = ["https://prefix.dev/robostack-lyrical", "https://prefix.dev/conda-forge"]
+name = "ros_lyrical"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[activation]
+scripts = ["scripts/activate.sh"]
+
+[tasks]
+sim = { cmd = ["bash", "scripts/sim.sh"], depends-on = ["build"] }
+build = { cmd = ["colcon", "build", "--packages-up-to", "kabot_robot", "--symlink-install"] }
+test = { cmd = "colcon test --packages-select kabot_robot && colcon test-result --test-result-base build/kabot_robot", depends-on = ["build"] }
+view = { cmd = ["ros2", "launch", "kabot_robot", "view_robot.launch.py"], depends-on = ["build"] }
+mock = { cmd = ["bash", "scripts/mock.sh"], depends-on = ["build"] }
+clean = { cmd = ["rm", "-rf", "install", "build", "log"] }
+
+[dependencies]
+ros-lyrical-desktop = ">=0.13.0,<0.14"
+ros-lyrical-ros-gz = ">=3.0.10,<4"
+ros-lyrical-gz-ros2-control = ">=3.0.9,<4"
+ros-lyrical-ros2-controllers = ">=6.9.0,<7"
+ros-lyrical-ros2-control = ">=6.10.0,<7"
+ros2-gz-ros2-control-demos = ">=3.0.9,<4"
+colcon-common-extensions = ">=0.3.0,<0.4"
+ros-lyrical-joint-state-publisher = ">=2.4.3,<3"
+ros-lyrical-joint-state-publisher-gui = ">=2.4.3,<3"

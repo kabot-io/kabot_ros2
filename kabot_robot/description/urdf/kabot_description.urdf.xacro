@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="../gazebo/kabot_physics.xacro"/>
+  <xacro:macro name="kabot" params="prefix physics:=false">
+    <xacro:property name="chassis_length" value="0.08"/>
+    <xacro:property name="chassis_width" value="0.04"/>
+    <xacro:property name="chassis_height" value="0.003"/>
+    <xacro:property name="slider_radius" value="0.0027"/>
+    <xacro:property name="top_height" value="0.01"/>
+    <xacro:property name="top_radius" value="0.058"/>
+    <xacro:property name="wheel_width" value="0.002"/>
+    <xacro:property name="wheel_radius" value="0.016"/>
+    <xacro:property name="wheel_half_separation" value="0.051"/>
+    <xacro:property name="wheel_roll" value="1.5"/>
+
+    <link name="${prefix}base_link"/>
+
+    <link name="${prefix}chassis">
+      <xacro:if value="${physics}">
+        <xacro:kabot_box_physics mass="0.150" length="${chassis_length}"
+          width="${chassis_width}" height="${chassis_height}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+    </link>
+
+    <link name="${prefix}back_slider">
+      <xacro:if value="${physics}">
+        <xacro:kabot_sphere_physics mass="0.005" radius="${slider_radius}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <sphere radius="${slider_radius}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+    </link>
+
+    <link name="${prefix}front_slider">
+      <xacro:if value="${physics}">
+        <xacro:kabot_sphere_physics mass="0.005" radius="${slider_radius}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <sphere radius="${slider_radius}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+    </link>
+
+    <link name="${prefix}top">
+      <xacro:if value="${physics}">
+        <xacro:kabot_cylinder_physics mass="0.020" radius="${top_radius}" length="${top_height}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <cylinder length="${top_height}" radius="${top_radius}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+
+    <link name="${prefix}left_wheel">
+      <xacro:if value="${physics}">
+        <xacro:kabot_cylinder_physics mass="0.010" radius="${wheel_radius}" length="${wheel_width}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+    </link>
+
+    <link name="${prefix}right_wheel">
+      <xacro:if value="${physics}">
+        <xacro:kabot_cylinder_physics mass="0.010" radius="${wheel_radius}" length="${wheel_width}"/>
+      </xacro:if>
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+    </link>
+
+    <joint name="${prefix}chassis_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}chassis"/>
+      <origin xyz="-0.01 0.0 -0.0095"/>
+    </joint>
+
+    <joint name="${prefix}front_slider_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}front_slider"/>
+      <origin xyz="0.03 0.0 -0.011"/>
+    </joint>
+
+    <joint name="${prefix}back_slider_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}back_slider"/>
+      <origin xyz="-0.05 0.0 -0.011"/>
+    </joint>
+
+    <joint name="${prefix}top_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}top"/>
+      <origin xyz="0.0 0.0 0.022"/>
+    </joint>
+
+    <joint name="${prefix}left_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}left_wheel"/>
+      <origin xyz="0.0 ${wheel_half_separation} 0.0" rpy="${-wheel_roll} 0 0"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <joint name="${prefix}right_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}right_wheel"/>
+      <origin xyz="0.0 ${-wheel_half_separation} 0.0" rpy="${wheel_roll} 0 0"/>
+      <axis xyz="0 0 -1"/>
+    </joint>
+  </xacro:macro>
+</robot>

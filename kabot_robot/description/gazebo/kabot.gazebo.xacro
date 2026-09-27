@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="kabot_surface" params="link friction">
+    <gazebo reference="${link}">
+      <mu1>${friction}</mu1>
+      <mu2>${friction}</mu2>
+    </gazebo>
+  </xacro:macro>
+  <xacro:macro name="kabot_gazebo" params="prefix wheel_friction:=1.0 slider_friction:=0.05 body_friction:=0.5">
+    <xacro:kabot_surface link="${prefix}left_wheel" friction="${wheel_friction}"/>
+    <xacro:kabot_surface link="${prefix}right_wheel" friction="${wheel_friction}"/>
+    <xacro:kabot_surface link="${prefix}front_slider" friction="${slider_friction}"/>
+    <xacro:kabot_surface link="${prefix}back_slider" friction="${slider_friction}"/>
+    <xacro:kabot_surface link="${prefix}chassis" friction="${body_friction}"/>
+    <xacro:kabot_surface link="${prefix}top" friction="${body_friction}"/>
+    <gazebo>
+      <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+        <topic>/model/kabot/pose</topic>
+        <publish_model_pose>true</publish_model_pose>
+        <publish_link_pose>false</publish_link_pose>
+        <publish_sensor_pose>false</publish_sensor_pose>
+        <publish_collision_pose>false</publish_collision_pose>
+        <publish_visual_pose>false</publish_visual_pose>
+        <publish_nested_model_pose>false</publish_nested_model_pose>
+        <use_pose_vector_msg>true</use_pose_vector_msg>
+        <update_frequency>50</update_frequency>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>

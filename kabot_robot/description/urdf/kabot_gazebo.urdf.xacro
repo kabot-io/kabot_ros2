@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Kabot">
+  <xacro:arg name="prefix" default=""/>
+  <xacro:arg name="controller_config" default=""/>
+  <xacro:include filename="kabot.materials.xacro"/>
+  <xacro:include filename="kabot_description.urdf.xacro"/>
+  <xacro:include filename="../gazebo/kabot.gazebo.xacro"/>
+  <xacro:include filename="../ros2_control/kabot_gazebo.ros2_control.xacro"/>
+  <xacro:kabot prefix="$(arg prefix)" physics="true"/>
+  <xacro:kabot_gazebo prefix="$(arg prefix)"/>
+  <xacro:kabot_gazebo_ros2_control prefix="$(arg prefix)" controller_config="$(arg controller_config)"/>
+</robot>

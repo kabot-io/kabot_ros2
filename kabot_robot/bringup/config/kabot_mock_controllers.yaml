@@ -1,0 +1,26 @@
+joint_state_broadcaster:
+  ros__parameters:
+    type: joint_state_broadcaster/JointStateBroadcaster
+
+kabot_base_controller:
+  ros__parameters:
+    type: diff_drive_controller/DiffDriveController
+    left_wheel_names: ["$(var prefix)left_wheel_joint"]
+    right_wheel_names: ["$(var prefix)right_wheel_joint"]
+    wheel_separation: 0.102
+    wheel_radius: 0.016
+    publish_rate: 50.0
+    odom_frame_id: "$(var prefix)odom"
+    base_frame_id: "$(var prefix)base_link"
+    tf_frame_prefix: ""
+    open_loop: false
+    position_feedback: true
+    enable_odom_tf: true
+    cmd_vel_timeout: 0.5
+    velocity_rolling_window_size: 1
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+    linear.x.max_velocity: 0.1
+    linear.x.min_velocity: -0.1
+    angular.z.max_velocity: 1.0
+    angular.z.min_velocity: -1.0

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="kabot_inertial" params="mass ixx iyy izz">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="${ixx}" ixy="0" ixz="0" iyy="${iyy}" iyz="0" izz="${izz}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="kabot_box_physics" params="mass length width height">
+    <collision><geometry><box size="${length} ${width} ${height}"/></geometry></collision>
+    <xacro:kabot_inertial mass="${mass}" ixx="${mass * (width**2 + height**2) / 12}"
+      iyy="${mass * (length**2 + height**2) / 12}" izz="${mass * (length**2 + width**2) / 12}"/>
+  </xacro:macro>
+
+  <xacro:macro name="kabot_cylinder_physics" params="mass radius length">
+    <collision><geometry><cylinder radius="${radius}" length="${length}"/></geometry></collision>
+    <xacro:kabot_inertial mass="${mass}" ixx="${mass * (3 * radius**2 + length**2) / 12}"
+      iyy="${mass * (3 * radius**2 + length**2) / 12}" izz="${mass * radius**2 / 2}"/>
+  </xacro:macro>
+
+  <xacro:macro name="kabot_sphere_physics" params="mass radius">
+    <collision><geometry><sphere radius="${radius}"/></geometry></collision>
+    <xacro:kabot_inertial mass="${mass}" ixx="${2 * mass * radius**2 / 5}"
+      iyy="${2 * mass * radius**2 / 5}" izz="${2 * mass * radius**2 / 5}"/>
+  </xacro:macro>
+</robot>

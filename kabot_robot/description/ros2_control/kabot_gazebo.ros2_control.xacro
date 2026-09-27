@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="kabot_gazebo_joint" params="name">
+    <joint name="${name}">
+      <command_interface name="velocity"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+    </joint>
+  </xacro:macro>
+  <xacro:macro name="kabot_gazebo_ros2_control" params="prefix controller_config">
+    <ros2_control name="${prefix}KabotGazebo" type="system">
+      <hardware><plugin>gz_ros2_control/GazeboSimSystem</plugin></hardware>
+      <xacro:kabot_gazebo_joint name="${prefix}left_wheel_joint"/>
+      <xacro:kabot_gazebo_joint name="${prefix}right_wheel_joint"/>
+    </ros2_control>
+    <gazebo>
+      <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>${controller_config}</parameters>
+        <ros>
+          <remapping>/robot_description:=/simulation/robot_description</remapping>
+        </ros>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>
