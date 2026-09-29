@@ -1,6 +1,7 @@
 import math
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 
@@ -135,7 +136,8 @@ def assert_physics(robot, prefix, urdf_file):
         assert all(float(inertia.get(key)) == 0 for key in ("ixy", "ixz", "iyz"))
     assert len(robot.findall("link/inertial")) == 6
     converted = subprocess.run(
-        ["gz", "sdf", "-p", str(urdf_file)], check=True, capture_output=True, text=True
+        [shutil.which("gz") or "gz", "sdf", "-p", str(urdf_file)],
+        check=True, capture_output=True, text=True
     )
     model = ET.fromstring(converted.stdout).find("model")
     assert model is not None

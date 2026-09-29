@@ -1,0 +1,11 @@
+# Local environments and editor settings.
+/.pixi/
+/.vscode/
+
+# Build and test output.
+/build/
+/install/
+/log/
+.pytest_cache/
+__pycache__/
+*.py[cod]

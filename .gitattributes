@@ -1,0 +1,6 @@
+# Keep source files and Linux shell scripts on LF across platforms.
+* text=auto eol=lf
+
+# Windows command scripts use CRLF in the working tree.
+*.bat text eol=crlf
+*.cmd text eol=crlf

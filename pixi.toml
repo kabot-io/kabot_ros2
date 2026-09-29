@@ -2,11 +2,14 @@
 authors = ["Krzysztof Pochwała <krzysztof.pochwala@gmail.com>"]
 channels = ["https://prefix.dev/robostack-lyrical", "https://prefix.dev/conda-forge"]
 name = "ros_lyrical"
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64"]
 version = "0.1.0"
 
-[activation]
+[target.linux-64.activation]
 scripts = ["scripts/activate.sh"]
+
+[target.win-64.activation]
+scripts = ["scripts/activate.bat"]
 
 [tasks]
 sim = { cmd = ["bash", "scripts/sim.sh"], depends-on = ["build"] }
@@ -15,6 +18,17 @@ test = { cmd = "colcon test --packages-select kabot_robot && colcon test-result 
 view = { cmd = ["ros2", "launch", "kabot_robot", "view_robot.launch.py"], depends-on = ["build"] }
 mock = { cmd = ["bash", "scripts/mock.sh"], depends-on = ["build"] }
 clean = { cmd = ["rm", "-rf", "install", "build", "log"] }
+
+[target.win-64.tasks]
+# Copy installed files: Windows symlinks require Developer Mode or elevation.
+build = { cmd = ["colcon", "build", "--packages-up-to", "kabot_robot", "--cmake-args", "-G", "Ninja", "-DAMENT_CMAKE_SYMLINK_INSTALL=OFF"] }
+sim = { cmd = ["cmd", "/d", "/c", "scripts\\ros2.bat", "launch", "kabot_robot", "gazebo.launch.py"], depends-on = ["build"] }
+mock = { cmd = ["cmd", "/d", "/c", "scripts\\ros2.bat", "launch", "kabot_robot", "mock.launch.py"], depends-on = ["build"] }
+view = { cmd = ["cmd", "/d", "/c", "scripts\\ros2.bat", "launch", "kabot_robot", "view_robot.launch.py"], depends-on = ["build"] }
+
+[target.win-64.dependencies]
+cmake = "*"
+ninja = "*"
 
 [dependencies]
 ros-lyrical-desktop = ">=0.13.0,<0.14"

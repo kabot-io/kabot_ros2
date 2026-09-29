@@ -1,3 +1,5 @@
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
 from launch.conditions import IfCondition
@@ -61,6 +63,9 @@ def launch_mock(context):
             package="rviz2",
             executable="rviz2",
             name="rviz2",
+            additional_env={
+                "QT_ENABLE_HIGHDPI_SCALING": os.environ.get("QT_ENABLE_HIGHDPI_SCALING", "0"),
+            } if os.name == "nt" else {},
             arguments=[
                 "-d", package_directory / "rviz" / "kabot_mock.rviz",
                 "-f", [LaunchConfiguration("prefix"), "odom"],

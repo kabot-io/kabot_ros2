@@ -29,7 +29,10 @@ def launch_gazebo(context):
         value_type=str,
     )
     world = (package_directory / "worlds" / "kabot.world.sdf").perform(context)
-    plugin_directory = (PathSubstitution(FindPackagePrefix("gz_ros2_control")) / "lib").perform(context)
+    plugin_directory = (
+        PathSubstitution(FindPackagePrefix("gz_ros2_control"))
+        / ("bin" if os.name == "nt" else "lib")
+    ).perform(context)
     gazebo = ExecuteProcess(
         cmd=[FindExecutable(name="gz"), "sim", "-r", "-s", world],
         name="gazebo_server", output="screen", on_exit=Shutdown(),
@@ -105,6 +108,9 @@ def launch_gazebo(context):
         TimerAction(period=45.0, actions=[OpaqueFunction(function=spawn_timeout)]),
         Node(
             package="rviz2", executable="rviz2", name="rviz2",
+            additional_env={
+                "QT_ENABLE_HIGHDPI_SCALING": os.environ.get("QT_ENABLE_HIGHDPI_SCALING", "0"),
+            } if os.name == "nt" else {},
             arguments=["-d", package_directory / "rviz" / "kabot_mock.rviz",
                        "-f", [LaunchConfiguration("prefix"), "odom"]],
             parameters=[{"use_sim_time": True}],

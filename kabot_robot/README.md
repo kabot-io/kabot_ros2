@@ -46,6 +46,13 @@ to build or run Kabot.
 
 From the workspace directory containing `pixi.toml`:
 
+On Windows, use PowerShell and `pixi run build` / `pixi run view`. These tasks
+build without symlinks and load the native ROS environment automatically.
+Native `mock` and `sim` currently crash in the ROS control dependency; see the
+repository's top-level README for the Windows status and WSL2 instructions.
+
+The manual Bash commands below are for Linux:
+
 ```bash
 pixi shell
 colcon build --paths kabot_robot --packages-select kabot_robot --symlink-install --cmake-args -DBUILD_TESTING=ON
@@ -53,7 +60,7 @@ source install/local_setup.bash
 ros2 launch kabot_robot view_robot.launch.py
 ```
 
-Activate Pixi before sourcing the overlay. Pixi activation loads an existing
+On Linux, activate Pixi before sourcing the overlay. Pixi activation loads
 `install/setup.sh` if available; a missing install directory is allowed before
 the first build. The `mock` and `sim` tasks reload the overlay after building.
 Use `--paths kabot_robot` to avoid discovering the linked demo repository.
