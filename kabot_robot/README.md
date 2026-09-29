@@ -44,14 +44,7 @@ to build or run Kabot.
 
 ## Build and Run
 
-From the workspace directory containing `pixi.toml`:
-
-On Windows, use PowerShell and `pixi run build` / `pixi run view`. These tasks
-build without symlinks and load the native ROS environment automatically.
-Native `mock` and `sim` currently crash in the ROS control dependency; see the
-repository's top-level README for the Windows status and WSL2 instructions.
-
-The manual Bash commands below are for Linux:
+On Linux, from the workspace directory containing `pixi.toml`:
 
 ```bash
 pixi shell
@@ -60,10 +53,19 @@ source install/local_setup.bash
 ros2 launch kabot_robot view_robot.launch.py
 ```
 
-On Linux, activate Pixi before sourcing the overlay. Pixi activation loads
+Activate Pixi before sourcing the overlay. Pixi activation loads an existing
 `install/setup.sh` if available; a missing install directory is allowed before
 the first build. The `mock` and `sim` tasks reload the overlay after building.
 Use `--paths kabot_robot` to avoid discovering the linked demo repository.
+
+On Windows, run these commands in PowerShell from the same workspace directory:
+
+```powershell
+pixi run build
+pixi run view
+```
+
+The Pixi tasks load the ROS environment automatically.
 
 The default launch opens RViz and the joint slider GUI. Alternative invocations:
 
@@ -71,6 +73,9 @@ The default launch opens RViz and the joint slider GUI. Alternative invocations:
 ros2 launch kabot_robot view_robot.launch.py gui:=false
 ros2 launch kabot_robot view_robot.launch.py prefix:=kabot_
 ```
+
+On Windows, pass these arguments to `pixi run view`, for example
+`pixi run view gui:=false` or `pixi run view prefix:=kabot_`.
 
 Without the GUI, a regular `joint_state_publisher` supplies wheel positions. With
 a prefix, all link/joint names and RViz's fixed frame use it. This is frame-name
@@ -200,11 +205,17 @@ torque-limit or battery model. Sensors, SLAM and navigation are outside this sta
 
 ## Tests
 
-In the same Pixi shell after building and sourcing the overlay:
+On Linux, in the same Pixi shell after building and sourcing the overlay:
 
 ```bash
 colcon test --paths kabot_robot --packages-select kabot_robot --event-handlers console_direct+
 colcon test-result --test-result-base build/kabot_robot --verbose
+```
+
+On Windows, use PowerShell:
+
+```powershell
+pixi run test
 ```
 
 The Xacro test expands the installed model, runs `check_urdf` and compares its XML
