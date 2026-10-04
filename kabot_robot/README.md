@@ -53,33 +53,39 @@ and controller dimensions are still those of DiffBot. Native simulation uses the
 Zenbedded hardware plugin, standard broadcaster/diff-drive controllers and the
 Kabot calibration controller. The `ros2_control_demos_link` checkout is not required.
 
-## Build and Run
+## Controller View
 
-From the workspace directory containing `pixi.toml`:
-
-```bash
-pixi shell
-colcon build --paths kabot_robot --packages-select kabot_robot --symlink-install --cmake-args -DBUILD_TESTING=ON
-source install/local_setup.bash
-ros2 launch kabot_robot view_robot.launch.py
-```
-
-Activate Pixi before sourcing the overlay. Pixi activation loads an existing
-`install/setup.sh` if available; a missing install directory is allowed before
-the first build. The `mock` and `sim` tasks reload the overlay after building.
-Use `--paths kabot_robot` to avoid discovering the linked demo repository.
-
-The default launch opens RViz and the joint slider GUI. Alternative invocations:
+Build once with `pixi run build-native` (also performed by `pixi run native`).
+With one controller stack already running, open a second terminal in the
+workspace directory containing `pixi.toml`, using the same ROS router settings:
 
 ```bash
-ros2 launch kabot_robot view_robot.launch.py gui:=false
-ros2 launch kabot_robot view_robot.launch.py prefix:=kabot_
+export ZENOH_CONFIG_OVERRIDE='connect/endpoints=["tcp/192.168.0.105:7447"]'
+pixi run view
 ```
 
-Without the GUI, a regular `joint_state_publisher` supplies wheel positions. With
-a prefix, all link/joint names and RViz's fixed frame use it. This is frame-name
-prefixing, not a complete multi-robot namespace setup. RViz's optional TF display
-can show wheel orientation; uniform cylinders do not visibly reveal their spin.
+`view` launches only RViz, without building packages or starting controllers,
+`robot_state_publisher`, `joint_state_publisher` or the joint slider GUI.
+It consumes the existing `/robot_description`, `/tf` and `/tf_static` topics.
+The active stack supplies wheel transforms from its `/joint_states`.
+Both Fixed Frame and the camera target use `odom`, so the robot moves over a
+stationary grid according to the controller's `odom -> base_link` transform.
+Without the active stack it waits for data; it does not generate a static robot.
+
+Pixi activation loads the installed overlay. Close an older view instance first
+to stop its synthetic joint-state and TF publishers. The former `gui`, `prefix`
+and description-generation arguments were removed. For a prefixed controller
+frame or an alternative RViz configuration, use:
+
+```bash
+pixi run view -- fixed_frame:=kabot_odom
+pixi run view -- rviz_config:=/path/to/custom.rviz
+```
+
+These options change only the viewer, not the controller's frames or robot
+description. Uniform wheel cylinders do not visibly reveal their spin; the
+optional TF display can show their orientation. In calibrated native mode,
+odometry and wheel states remain model estimates, not physical measurements.
 
 ## Mock Control
 
@@ -92,9 +98,10 @@ pixi run mock
 This runs the existing `build` task first, loads the newly installed package and
 starts `mock_components/GenericSystem`, `controller_manager`,
 `joint_state_broadcaster`, `kabot_base_controller` (`diff_drive_controller`) and
-RViz. The ordinary geometry viewer remains available as `pixi run view`.
-Do not run `view`, `mock` and `sim` at the same time in the same ROS domain: they would
-publish competing descriptions, joint states and TF.
+RViz. For a separately managed viewer, use `pixi run mock gui:=false`, then
+`pixi run view`. The passive viewer may accompany one stack. Do not run `mock`,
+`native` and `sim` together: they publish competing descriptions, joint states
+and TF.
 
 ```bash
 pixi run mock gui:=false

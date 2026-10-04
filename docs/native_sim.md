@@ -55,7 +55,12 @@ In another terminal, from `kabot_ros2`:
 pixi run native -- calibrated:=false
 ```
 
-Do not run `native`, `mock`, `sim` or `view` together in the same ROS domain.
+Do not run `native`, `mock` or `sim` together in the same ROS domain.
+`pixi run view` is now a passive RViz viewer and may accompany one active stack.
+It opens no joint slider GUI or state publishers. Use the same router export
+as the controller; Fixed Frame is `odom`. The calibrated native profile supplies
+model wheel states and TF for this view; the historical raw profile does not
+publish visualization joint states.
 
 ## Read
 

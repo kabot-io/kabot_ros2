@@ -33,8 +33,12 @@ Run simulation
 pixi run sim
 ```
 
-View URDF in Rviz:
-```
+View the running controller in RViz (same router environment, no joint slider GUI):
+```bash
 pixi run view
 ```
+
+This opens only RViz in the `odom` frame. Start one controller stack first;
+the viewer uses its existing robot description and TF, without generating
+joint states or starting another controller. See [controller view](kabot_robot/README.md#controller-view).
 
