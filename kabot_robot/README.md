@@ -1,8 +1,20 @@
 # Kabot Robot Description
 
 This package provides the Kabot model, RViz visualization, differential-drive
-control with mock hardware and Gazebo physics simulation. It does not communicate
-with physical motors.
+control with mock hardware and Gazebo physics simulation, plus a separate
+Zenbedded launch for Zephyr native simulation or physical motors.
+
+The separate `native_sim.launch.py` connects to Zephyr through Zenbedded and
+publishes heartbeat and both wheels' position/velocity states using
+`state_interfaces_broadcaster`.
+It also runs `kabot_base_controller` (`diff_drive_controller/DiffDriveController`)
+on `/cmd_vel`. Its wheel velocity setpoints feed `kabot_motion_model`, an
+empirical open-loop velocity-to-effort model. Modeled wheel states supply
+odometry, `/joint_states` and RViz; they are not encoder measurements.
+`calibrated:=false` retains FF-only `kabot_wheel_pid` for old raw trials.
+See [calibrated motion](../../docs/calibrated-motion.md) for the fit and limitations.
+See [Native simulator](../docs/native_sim.md) for the router, firmware, claim,
+Pixi launch and ROS commands. Velocity uses rad/s; effort is normalized, not Nm.
 
 ## Description
 
@@ -36,11 +48,10 @@ to forward rolling on both sides. Motor and encoder sign conversion belongs in
 the future hardware interface. Collision shapes, masses and inertias are enabled
 only by the Gazebo wrapper; the geometry-only and mock descriptions are unchanged.
 
-`hardware/` and the old `diffbot*` files retain the copied demo sources for later
-work. They are not built, installed or launched. Their package names and controller
-dimensions are still those of DiffBot. Only the Kabot descriptions, launches and
-configurations are installed. The `ros2_control_demos_link` checkout is not required
-to build or run Kabot.
+The copied `hardware/diffbot*` demo sources remain unused; their package names
+and controller dimensions are still those of DiffBot. Native simulation uses the
+Zenbedded hardware plugin, standard broadcaster/diff-drive controllers and the
+Kabot calibration controller. The `ros2_control_demos_link` checkout is not required.
 
 ## Build and Run
 

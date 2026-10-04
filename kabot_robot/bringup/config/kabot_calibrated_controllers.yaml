@@ -1,0 +1,48 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 10
+    kabot_state_broadcaster:
+      type: state_interfaces_broadcaster/StateInterfacesBroadcaster
+    kabot_motion_model:
+      type: kabot_robot/CalibratedMotionController
+    kabot_base_controller:
+      type: diff_drive_controller/DiffDriveController
+
+kabot_state_broadcaster:
+  ros__parameters:
+    interfaces:
+      - kabot/heartbeat
+      - left_wheel_joint/position
+      - left_wheel_joint/velocity
+      - right_wheel_joint/position
+      - right_wheel_joint/velocity
+
+kabot_motion_model:
+  ros__parameters:
+    joints: [left_wheel_joint, right_wheel_joint]
+    wheel_radius: 0.016
+    wheel_separation: 0.102
+    calibration:
+      low_speed: 0.03372434017595308
+      high_speed: 0.06804733727810651
+      low_effort: [0.75478125, 0.74521875]
+      high_effort: [1.0, 0.9611125]
+      ccw_rate: 1.3718745212182503
+      cw_rate: 1.3700796561665038
+
+kabot_base_controller:
+  ros__parameters:
+    left_wheel_names: [kabot_motion_model/left_wheel_joint]
+    right_wheel_names: [kabot_motion_model/right_wheel_joint]
+    wheel_separation: 0.102
+    wheel_radius: 0.016
+    publish_rate: 10.0
+    odom_frame_id: odom
+    base_frame_id: base_link
+    tf_frame_prefix: ""
+    tf_frame_prefix_enable: false
+    open_loop: false
+    position_feedback: false
+    enable_odom_tf: true
+    cmd_vel_timeout: 0.3
+    velocity_rolling_window_size: 1

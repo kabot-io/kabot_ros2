@@ -1,117 +1,58 @@
-import math
-import os
+import importlib.util
 from pathlib import Path
-import time
-import unittest
-import xml.etree.ElementTree as ET
+import tomllib
+from unittest.mock import patch
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-import launch_testing
-from launch_testing.actions import ReadyToTest
-import launch_testing.asserts
-import rclpy
-from rclpy.qos import DurabilityPolicy, QoSProfile
-from rclpy.time import Time
-from sensor_msgs.msg import JointState
-from std_msgs.msg import String
-from tf2_ros import Buffer, TransformListener
+from launch import LaunchContext
+from launch.actions import DeclareLaunchArgument
+from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
+from launch_ros.actions import Node
+import pytest
+import yaml
 
 
-def generate_test_description():
-    prefix = os.environ.get("KABOT_TEST_PREFIX", "")
-    launch_file = (
-        Path(get_package_share_directory("kabot_robot")) / "launch/view_robot.launch.py"
-    )
-    view_robot = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(str(launch_file)),
-        launch_arguments={"gui": "false", "prefix": prefix}.items(),
-    )
-    return LaunchDescription([view_robot, ReadyToTest()]), {"prefix": prefix}
+PACKAGE_SOURCE = Path(__file__).resolve().parents[1]
 
 
-class TestRobotDescription(unittest.TestCase):
-    def test_description_joint_states_and_transforms(self, prefix):
-        rclpy.init()
-        node = rclpy.create_node("kabot_description_test")
-        buffer = Buffer()
-        listener = TransformListener(buffer, node)
-        descriptions = []
-        joint_states = []
-        node.create_subscription(
-            String,
-            "/robot_description",
-            descriptions.append,
-            QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL),
-        )
-        node.create_subscription(JointState, "/joint_states", joint_states.append, 10)
-        child_links = [
-            "chassis", "back_slider", "front_slider", "top", "left_wheel", "right_wheel"
-        ]
-        base_frame = prefix + "base_link"
-        try:
-            deadline = time.monotonic() + 15.0
-            while time.monotonic() < deadline:
-                rclpy.spin_once(node, timeout_sec=0.1)
-                if descriptions and joint_states and all(
-                    buffer.can_transform(base_frame, prefix + child, Time())
-                    for child in child_links
-                ):
-                    break
+@pytest.mark.parametrize("installed", [False, True])
+@pytest.mark.parametrize("fixed_frame", [None, "kabot_odom"])
+def test_view_only_observes_controller(installed, fixed_frame):
+    directory = Path(get_package_share_directory("kabot_robot")) if installed else PACKAGE_SOURCE / "description"
+    spec = importlib.util.spec_from_file_location("view_robot", directory / "launch/view_robot.launch.py")
+    view = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(view)
+    context = LaunchContext()
+    if fixed_frame:
+        context.launch_configurations["fixed_frame"] = fixed_frame
 
-            self.assertTrue(descriptions, "No robot_description received")
-            self.assertTrue(joint_states, "No joint_states received")
-            robot = ET.fromstring(descriptions[-1].data)
-            self.assertEqual(robot.attrib["name"], "Kabot")
-            self.assertEqual(
-                {link.attrib["name"] for link in robot.findall("link")},
-                {base_frame, *(prefix + child for child in child_links)},
-            )
-            self.assertIsNone(robot.find("ros2_control"))
-            states = joint_states[-1]
-            self.assertEqual(
-                set(states.name),
-                {prefix + "left_wheel_joint", prefix + "right_wheel_joint"},
-            )
-            self.assertEqual(len(states.name), 2)
-            self.assertEqual(len(states.position), 2)
-            self.assertTrue(all(math.isfinite(value) for value in states.position))
-            for position in states.position:
-                self.assertAlmostEqual(position, 0.0)
-            self.assertEqual(node.count_publishers("/joint_states"), 1)
-            self.assertNotIn("controller_manager", node.get_node_names())
+    with patch.object(view, "Node", wraps=Node) as node_factory:
+        entities = view.generate_launch_description().entities
+    declarations = [entity for entity in entities if isinstance(entity, DeclareLaunchArgument)]
+    assert {entity.name for entity in declarations} == {"rviz_config", "fixed_frame"}
+    for declaration in declarations:
+        declaration.execute(context)
 
-            for joint in robot.findall("joint"):
-                child = joint.find("child").attrib["link"]
-                self.assertTrue(
-                    buffer.can_transform(base_frame, child, Time()),
-                    f"Missing transform {base_frame} -> {child}",
-                )
-                transform = buffer.lookup_transform(base_frame, child, Time()).transform
-                origin = joint.find("origin")
-                expected_position = [float(value) for value in origin.attrib["xyz"].split()]
-                actual_position = [
-                    transform.translation.x, transform.translation.y, transform.translation.z
-                ]
-                for actual, expected in zip(actual_position, expected_position):
-                    self.assertAlmostEqual(actual, expected)
-                roll = float(origin.get("rpy", "0 0 0").split()[0])
-                actual_rotation = [
-                    transform.rotation.x, transform.rotation.y,
-                    transform.rotation.z, transform.rotation.w,
-                ]
-                expected_rotation = [math.sin(roll / 2), 0.0, 0.0, math.cos(roll / 2)]
-                for actual, expected in zip(actual_rotation, expected_rotation):
-                    self.assertAlmostEqual(actual, expected)
-        finally:
-            listener.unregister()
-            node.destroy_node()
-            rclpy.shutdown()
+    assert len(entities) == len(declarations) + 1
+    assert sum(isinstance(entity, Node) for entity in entities) == 1
+    node_factory.assert_called_once()
+    options = node_factory.call_args.kwargs
+    assert options["package"] == options["executable"] == "rviz2"
+    assert "parameters" not in options
+    arguments = [perform_substitutions(context, normalize_to_list_of_substitutions(argument))
+                 for argument in options["arguments"]]
+    assert arguments == ["-d", context.launch_configurations["rviz_config"], "-f", fixed_frame or "odom"]
+
+    manager = yaml.safe_load(Path(arguments[1]).read_text())["Visualization Manager"]
+    assert manager["Global Options"]["Fixed Frame"] == "odom"
+    assert manager["Views"]["Current"]["Target Frame"] == "<Fixed Frame>"
+    robot = next(display for display in manager["Displays"] if display["Class"] == "rviz_default_plugins/RobotModel")
+    assert robot["Enabled"]
+    assert robot["Description Source"] == "Topic"
+    assert robot["Description Topic"]["Value"] == "/robot_description"
+    assert robot["Description Topic"]["Durability Policy"] == "Transient Local"
 
 
-@launch_testing.post_shutdown_test()
-class TestShutdown(unittest.TestCase):
-    def test_exit_codes(self, proc_info):
-        launch_testing.asserts.assertExitCodes(proc_info)
+def test_view_task_does_not_build_or_start_control():
+    tasks = tomllib.loads((PACKAGE_SOURCE.parent / "pixi.toml").read_text())["tasks"]
+    assert tasks["view"] == {"cmd": ["ros2", "launch", "kabot_robot", "view_robot.launch.py"]}

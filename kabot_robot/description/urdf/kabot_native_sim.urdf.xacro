@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kabot_native_sim">
+  <xacro:arg name="schema_path" default=""/>
+  <xacro:arg name="zenoh_endpoint" default="tcp/127.0.0.1:7447"/>
+  <xacro:include filename="kabot.urdf.xacro"/>
+  <ros2_control name="KabotNativeSim" type="system">
+    <hardware>
+      <plugin>zenbedded_hardware_interface/ZenbeddedHardware</plugin>
+      <param name="schema_path">$(arg schema_path)</param>
+      <param name="zenoh_mode">client</param>
+      <param name="zenoh_endpoint">$(arg zenoh_endpoint)</param>
+      <param name="state_topic">zenbedded/state</param>
+      <param name="command_topic">zenbedded/cmd</param>
+    </hardware>
+    <sensor name="kabot">
+      <state_interface name="heartbeat"/>
+    </sensor>
+    <joint name="left_wheel_joint">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_wheel_joint">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+</robot>

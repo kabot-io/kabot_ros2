@@ -6,6 +6,13 @@ In this repository you'll find robot bringup files `ros_control` stuff and urdf.
 
 ## Quickstart:
 
+Pixi uses `RMW_IMPLEMENTATION=rmw_zenoh_cpp`. Start a router in a separate
+terminal with `pixi run ros2 run rmw_zenoh_cpp rmw_zenohd` before running ROS nodes.
+For firmware telemetry, see [Native simulator telemetry](docs/native_sim.md).
+For the physical robot, `pixi run native` defaults to empirical physical Twist
+mapping; `rviz:=true` adds model visualization. See
+[calibrated motion and the timed return loop](../docs/calibrated-motion.md).
+
 Install [pixi](https://pixi.prefix.dev/latest/):
 ```bash
 curl -fsSL https://pixi.sh/install.sh | sh

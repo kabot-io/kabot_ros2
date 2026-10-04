@@ -14,73 +14,26 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathSubstitution
+from launch.substitutions import LaunchConfiguration, PathSubstitution
 
 from launch_ros.actions import Node
-from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    description_directory = PathSubstitution(
-        FindPackageShare(LaunchConfiguration("description_package"))
-    )
-    robot_description = ParameterValue(
-        Command(
-            [
-                FindExecutable(name="xacro"),
-                ' "',
-                description_directory / "urdf" / LaunchConfiguration("description_file"),
-                '" prefix:=',
-                LaunchConfiguration("prefix"),
-            ]
-        ),
-        value_type=str,
-    )
+    package_directory = PathSubstitution(FindPackageShare("kabot_robot"))
 
     return LaunchDescription(
         [
             DeclareLaunchArgument(
-                "description_package",
-                default_value="kabot_robot",
-                description=(
-                    "Package containing the robot URDF/Xacro and RViz configuration."
-                ),
+                "rviz_config",
+                default_value=package_directory / "rviz" / "kabot_mock.rviz",
+                description="RViz configuration for observing the running controller.",
             ),
             DeclareLaunchArgument(
-                "description_file",
-                default_value="kabot.urdf.xacro",
-                description="URDF/XACRO description file with the robot.",
-            ),
-            DeclareLaunchArgument(
-                "gui",
-                default_value="true",
-                description=(
-                    "Start Rviz2 and Joint State Publisher gui automatically "
-                    "with this launch file."
-                ),
-            ),
-            DeclareLaunchArgument(
-                "prefix",
-                default_value="",
-                description="Prefix applied to all link and joint names.",
-            ),
-            Node(
-                package="joint_state_publisher_gui",
-                executable="joint_state_publisher_gui",
-                condition=IfCondition(LaunchConfiguration("gui")),
-            ),
-            Node(
-                package="joint_state_publisher",
-                executable="joint_state_publisher",
-                condition=UnlessCondition(LaunchConfiguration("gui")),
-            ),
-            Node(
-                package="robot_state_publisher",
-                executable="robot_state_publisher",
-                output="both",
-                parameters=[{"robot_description": robot_description}],
+                "fixed_frame",
+                default_value="odom",
+                description="Fixed world frame supplied by the controller TF tree.",
             ),
             Node(
                 package="rviz2",
@@ -89,11 +42,10 @@ def generate_launch_description():
                 output="log",
                 arguments=[
                     "-d",
-                    description_directory / "rviz" / "kabot_view.rviz",
+                    LaunchConfiguration("rviz_config"),
                     "-f",
-                    [LaunchConfiguration("prefix"), "base_link"],
+                    LaunchConfiguration("fixed_frame"),
                 ],
-                condition=IfCondition(LaunchConfiguration("gui")),
             ),
         ]
     )

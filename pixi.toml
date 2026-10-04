@@ -12,8 +12,16 @@ scripts = ["scripts/activate.sh"]
 sim = { cmd = ["bash", "scripts/sim.sh"], depends-on = ["build"] }
 build = { cmd = ["colcon", "build", "--packages-up-to", "kabot_robot", "--symlink-install"] }
 test = { cmd = "colcon test --packages-select kabot_robot && colcon test-result --test-result-base build/kabot_robot", depends-on = ["build"] }
-view = { cmd = ["ros2", "launch", "kabot_robot", "view_robot.launch.py"], depends-on = ["build"] }
+view = { cmd = ["ros2", "launch", "kabot_robot", "view_robot.launch.py"] }
 mock = { cmd = ["bash", "scripts/mock.sh"], depends-on = ["build"] }
+build-native = { cmd = ["bash", "scripts/build-native.sh"] }
+native = { cmd = ["bash", "scripts/native.sh"], depends-on = ["build-native"] }
+teleop = { cmd = ["ros2", "run", "teleop_twist_keyboard", "teleop_twist_keyboard", "--ros-args", "-p", "stamped:=false", "-p", "speed:=0.03372434017595308", "-p", "turn:=0.5", "-r", "cmd_vel:=/cmd_vel_unstamped"] }
+native-claim = { cmd = ["python", "scripts/native-claim.py"] }
+calibrate = { cmd = ["python", "scripts/calibrate-motion.py"] }
+drive-loop = { cmd = ["python", "scripts/drive-loop.py"] }
+test-native = { cmd = ["python", "scripts/check-native.py"] }
+test-native-motors = { cmd = ["python", "scripts/check-native-motors.py"], depends-on = ["build-native"] }
 clean = { cmd = ["rm", "-rf", "install", "build", "log"] }
 
 [dependencies]
@@ -26,3 +34,7 @@ ros2-gz-ros2-control-demos = ">=3.0.9,<4"
 colcon-common-extensions = ">=0.3.0,<0.4"
 ros-lyrical-joint-state-publisher = ">=2.4.3,<3"
 ros-lyrical-joint-state-publisher-gui = ">=2.4.3,<3"
+ros-lyrical-zenoh-cpp-vendor = ">=0.10.5,<0.11"
+libzenohcxx = "==1.9.0"
+libcap = ">=2.77,<3"
+cxx-compiler = "*"

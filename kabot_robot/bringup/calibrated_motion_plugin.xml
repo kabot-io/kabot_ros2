@@ -1,0 +1,5 @@
+<library path="kabot_calibrated_motion">
+  <class name="kabot_robot/CalibratedMotionController" type="kabot_robot::CalibratedMotionController" base_class_type="controller_interface::ChainableControllerInterface">
+    <description>Empirical open-loop effort mapping with model wheel states.</description>
+  </class>
+</library>
