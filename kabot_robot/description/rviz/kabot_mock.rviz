@@ -1,70 +1,256 @@
 Panels:
   - Class: rviz_common/Displays
+    Help Height: 70
     Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /RobotModel1
+        - /TF1
+        - /TF1/Frames1
+        - /Odometry1
+        - /Odometry1/Shape1
+        - /TwistStamped1
+      Splitter Ratio: 0.5
+    Tree Height: 374
   - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
     Name: Views
+    Splitter Ratio: 0.5
 Visualization Manager:
   Class: ""
   Displays:
-    - Class: rviz_default_plugins/Grid
-      Name: Grid
-      Enabled: true
-      Cell Size: 0.025
-      Plane Cell Count: 40
+    - Alpha: 0.5
+      Cell Size: 0.02500000037252903
+      Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
-      Alpha: 0.5
-      Line Style:
-        Value: Lines
-        Line Width: 0.0002
-      Reference Frame: <Fixed Frame>
-      Plane: XY
-    - Class: rviz_default_plugins/RobotModel
-      Name: RobotModel
       Enabled: true
-      Alpha: 1
+      Line Style:
+        Line Width: 0.0010000000474974513
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 40
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 0.5
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
       Description Source: Topic
       Description Topic:
-        Value: /robot_description
-        Reliability Policy: Reliable
+        Depth: 1
         Durability Policy: Transient Local
         History Policy: Keep Last
-        Depth: 1
-      Visual Enabled: true
-      Collision Enabled: false
+        Reliability Policy: Reliable
+        Value: /robot_description
+      Enabled: true
       Links:
         All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        back_slider:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        chassis:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_slider:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
     - Class: rviz_default_plugins/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        back_slider:
+          Value: false
+        base_link:
+          Value: true
+        chassis:
+          Value: false
+        front_slider:
+          Value: false
+        left_wheel:
+          Value: true
+        odom:
+          Value: false
+        right_wheel:
+          Value: true
+        top:
+          Value: false
+      Marker Scale: 0.30000001192092896
       Name: TF
-      Enabled: false
       Show Arrows: false
       Show Axes: true
       Show Names: false
-      Marker Scale: 0.05
+      Tree:
+        odom:
+          base_link:
+            back_slider:
+              {}
+            chassis:
+              {}
+            front_slider:
+              {}
+            left_wheel:
+              {}
+            right_wheel:
+              {}
+            top:
+              {}
+      Update Interval: 0
+      Value: true
+    - Angle Tolerance: 0.10000000149011612
+      Class: rviz_default_plugins/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: true
+        Position:
+          Alpha: 0.30000001192092896
+          Color: 204; 51; 204
+          Scale: 1
+          Value: true
+        Value: true
+      Enabled: true
+      Keep: 100
+      Name: Odometry
+      Position Tolerance: 0.10000000149011612
+      Shape:
+        Alpha: 0.5
+        Axes Length: 0.019999999552965164
+        Axes Radius: 0.004999999888241291
+        Color: 255; 25; 255
+        Head Length: 0.029999999329447746
+        Head Radius: 0.009999999776482582
+        Shaft Length: 0.03999999910593033
+        Shaft Radius: 0.004999999888241291
+        Value: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /kabot_base_controller/odom
+      Value: true
+    - Alpha: 1
+      Angular Arrow Scale: 0.25
+      Angular Color: 204; 204; 51
+      Arrow Width: 0.05000000074505806
+      Class: rviz_default_plugins/TwistStamped
+      Enabled: true
+      Hide Small Values: false
+      History Length: 1
+      Linear Arrow Scale: 3
+      Linear Color: 204; 51; 51
+      Name: TwistStamped
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /cmd_vel
+      Value: true
+  Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Fixed Frame: odom
     Frame Rate: 30
+  Name: root
   Tools:
     - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
     - Class: rviz_default_plugins/MoveCamera
     - Class: rviz_default_plugins/Select
     - Class: rviz_default_plugins/FocusCamera
     - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.65
+      Distance: 1.1100130081176758
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0.005
-      Near Clip Distance: 0.001
-      Pitch: 0.5
-      Yaw: 0.8
+        X: 0.03176015615463257
+        Y: -0.17863249778747559
+        Z: 0.04879021644592285
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.0010000000474974513
+      Pitch: 0.8999991416931152
       Target Frame: <Fixed Frame>
-  Enabled: true
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 0.48500028252601624
+    Saved: ~
 Window Geometry:
-  Width: 1100
-  Height: 800
+  Displays:
+    collapsed: true
+  Height: 1028
+  Hide Left Dock: true
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000001000000000000019c000003b0fc0200000002fb000000100044006900730070006c006100790073000000003a00000233000000c600fffffffb0000000a005600690065007700730000000273000001770000009e00ffffff00000268000003b000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Views:
+    collapsed: true
+  Width: 616
+  X: 243
+  Y: 24
